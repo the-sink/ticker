@@ -24,7 +24,7 @@ ${chalk.bold("help")}: show this prompt
 ${chalk.bold("quit")}: exit the program (or just ctrl+c)
 ${chalk.bold("get <ticker>")}: get a current stock price
 ${chalk.bold("add <ticker> <quantity> <price>")}: add shares to your account
-${chalk.bold("earnings <ticker>")}: get total earnings for stock
+${chalk.bold("earnings <ticker>")}: get total earnings for stock, or use "*" in place of a stock ticker to get total earnings
 ${chalk.bold("remove <ticker> <index>")}: remove index from share list, use "list" to see array indices
 ${chalk.bold("list <ticker>")}: list array indices for ticker, used for "remove" command
 ${chalk.bold("all")}: list all stock tickers currently on account
@@ -81,25 +81,18 @@ const commands = {
   },
   earnings: async function(response){
     var ticker = response[1].toUpperCase();
-    await data.ensure(ticker, []);
-    var stocks = await data.get(ticker);
-    var current = 0;
     var increaseTotal = 0;
-
-    await yahooFinance.quote({
-      symbol: ticker,
-      modules: ["price"]
-    }, function(err, quote) {
-      if (err) {return;}
-      current = quote.price.regularMarketPrice;
-    }).catch(function(err){
-      console.log(chalk.red("Error: " + err));
-    });
-
-    await stocks.forEach(function(value){
-      increaseTotal += (current - value);
-    });
-
+    if (ticker == "*") {
+      var tickers = await data.keyArray();
+      console.log("Processing earnings...");
+      for (const subject of tickers){
+        var earnings = await getEarnings(subject);
+        increaseTotal += earnings;
+      }
+    } else {
+      await data.ensure(ticker, []);
+      increaseTotal = await getEarnings(ticker);
+    }
     var output;
     if (increaseTotal > 0){
       output = chalk.green.bold(`$${increaseTotal.toFixed(2)}`)
@@ -107,7 +100,7 @@ const commands = {
       output = chalk.red.bold(`$${increaseTotal.toFixed(2)}`)
     }
 
-    console.log(`Earnings total from this stock: ${output}`);
+    console.log(`Earnings: ${output}`);
   },
   remove: async function(response){
     var ticker = response[1].toUpperCase();
@@ -184,6 +177,26 @@ function query(message) {
   }));
 }
 
+async function getEarnings(ticker) {
+  var stocks = await data.get(ticker);
+  var current = 0;
+  var increaseTotal = 0;
+
+  await yahooFinance.quote({
+    symbol: ticker,
+    modules: ["price"]
+  }, function(err, quote) {
+    if (err) {return;}
+    current = quote.price.regularMarketPrice;
+  }).catch(function(err){
+    console.log(chalk.red("Error: " + err));
+  });
+
+  await stocks.forEach(function(value){
+    increaseTotal += (current - value);
+  });
+  return increaseTotal;
+}
 
 async function main(){
   console.log(`${chalk.blueBright("ticker")} ${process.env.npm_package_version} - run ${chalk.bold("help")} for a list of commands`)
