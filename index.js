@@ -1,3 +1,5 @@
+// TODO: convert yahoo finance requests to a function
+
 const yahooFinance = require("yahoo-finance");
 const readline = require("readline");
 const Enmap = require("enmap");
@@ -41,7 +43,10 @@ const commands = {
       symbol: ticker,
       modules: ["price"]
     }, function(err, quote) {
+      if (err) {return;}
       console.log(`Current stock price of $${ticker}: ` + chalk.bold(`$${quote.price.regularMarketPrice}`));
+    }).catch(function(err){
+      console.log(chalk.red("Error: " + err));
     });
   },
   add: async function(response){
@@ -55,9 +60,14 @@ const commands = {
         symbol: ticker,
         modules: ["price"]
       }, function(err, quote) {
+        if (err) {return;}
         amount = quote.price.regularMarketPrice;
+      }).catch(function(err){
+        console.log(chalk.red("Error: " + err));
       });
     }
+
+    if (amount == undefined) {return;}
 
     var stocks = await data.get(ticker);
     console.log(`You currently own ${stocks.length} stock(s) of $${ticker}, purchasing ${quantity} more at ` + chalk.bold(`$${amount}`));
@@ -79,7 +89,10 @@ const commands = {
       symbol: ticker,
       modules: ["price"]
     }, function(err, quote) {
+      if (err) {return;}
       current = quote.price.regularMarketPrice;
+    }).catch(function(err){
+      console.log(chalk.red("Error: " + err));
     });
 
     await stocks.forEach(function(value){
@@ -147,10 +160,13 @@ const commands = {
       from: start,
       to: end,
     }, function (err, quotes) {
+      if (err) {return;}
       var arr = [];
       quotes.forEach(function(data){
         arr.push([quotes.length-arr.length, data.close]); // data needs to be flipped
       });
+    }).catch(function(err){
+      console.log(chalk.red("Error: " + err));
     });
   }
 }
