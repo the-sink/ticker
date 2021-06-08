@@ -142,7 +142,7 @@ function query(message) {
 }
 
 async function main(){
-  console.log(`${chalk.blueBright("ticker")} - run ${chalk.bold("help")} for a list of commands`)
+  console.log(`${chalk.blueBright("ticker")} ${process.env.npm_package_version} - run ${chalk.bold("help")} for a list of commands`)
   while (running) {
     var response = await query("> ");
     response = response.split(" ");
