@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "asciichart": "^1.5.25",
+    "babar": "^0.2.0",
     "chalk": "^4.1.1",
     "enmap": "^5.8.5",
     "yahoo-finance": "^0.3.7"

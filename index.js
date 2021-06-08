@@ -2,6 +2,7 @@ const yahooFinance = require("yahoo-finance");
 const readline = require("readline");
 const Enmap = require("enmap");
 const chalk = require("chalk");
+const babar = require("babar");
 const data = new Enmap({name: "data"});
 
 var running = true;
@@ -127,6 +128,30 @@ const commands = {
     console.log(`Clearing $${ticker} (if it exists)`);
 
     await data.delete(ticker);
+  },
+  trend: async function(response){
+    var ticker = response[1].toUpperCase();
+    var start = response[2];
+    var end = response[3];
+
+    if (start == undefined || end == undefined) {
+      console.log(chalk.red("Please provide a start and end date!"));
+      return;
+    }
+
+    console.log(chalk.red("experimental: this command may not work as expected"));
+    console.log("   " + babar(arr) + `\nprice at days since ${start} and leading up to ${end}:`);
+
+    await yahooFinance.historical({
+      symbol: ticker,
+      from: start,
+      to: end,
+    }, function (err, quotes) {
+      var arr = [];
+      quotes.forEach(function(data){
+        arr.push([quotes.length-arr.length, data.close]); // data needs to be flipped
+      });
+    });
   }
 }
 
@@ -140,6 +165,7 @@ function query(message) {
     resolve(answer);
   }));
 }
+
 
 async function main(){
   console.log(`${chalk.blueBright("ticker")} ${process.env.npm_package_version} - run ${chalk.bold("help")} for a list of commands`)
