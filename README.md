@@ -4,7 +4,7 @@
 
 A simple command-line stock market earnings tracker.
 
-This tool is extremely simple: it's a single script under 200 lines that lets me record shares of any given stock at a specific price, and track how much I have earned or lost at the current point in time. If you want to use this tool or contribute, feel free to!
+This tool is extremely simple: it's a single script somewhere around 200 lines that lets me record shares of any given stock at a specific price, and track how much I have earned or lost at the current point in time. If you want to use this tool or contribute, feel free to!
 
 To use, clone the repository and run ``npm install`` in the working directory to retrieve the required dependencies, followed with ``npm start``.
 
