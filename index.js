@@ -28,7 +28,8 @@ ${chalk.bold("earnings <ticker>")}: get total earnings for stock
 ${chalk.bold("remove <ticker> <index>")}: remove index from share list, use "list" to see array indices
 ${chalk.bold("list <ticker>")}: list array indices for ticker, used for "remove" command
 ${chalk.bold("all")}: list all stock tickers currently on account
-${chalk.bold("clear <ticker>")}: erase all shares of a stock from your account`
+${chalk.bold("clear <ticker>")}: erase all shares of a stock from your account
+${chalk.bold("trend <ticker> <startDate> <endDate>")}: generate a trend graph for a stock in the given time period`
 
 const commands = {
   help: function(){
