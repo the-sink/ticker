@@ -59,7 +59,7 @@ const commands = {
     }
 
     var stocks = await data.get(ticker);
-    console.log(`You currently own ${stocks.length} stocks of $${ticker}, purchasing at ` + chalk.bold(`$${amount}`));
+    console.log(`You currently own ${stocks.length} stocks of $${ticker}, purchasing ${quantity} more at ` + chalk.bold(`$${amount}`));
 
     for (var i = 0; i < quantity; i++) {
       stocks.push(amount);
@@ -85,7 +85,14 @@ const commands = {
       increaseTotal += (current - value);
     });
 
-    console.log(`Earnings total from this stock: ` + chalk.bold(`$${increaseTotal.toFixed(2)}`));
+    var output;
+    if (increaseTotal > 0){
+      output = chalk.green.bold(`$${increaseTotal.toFixed(2)}`)
+    } else {
+      output = chalk.red.bold(`$${increaseTotal.toFixed(2)}`)
+    }
+
+    console.log(`Earnings total from this stock: ${output}`);
   },
   remove: async function(response){
     var ticker = response[1].toUpperCase();
