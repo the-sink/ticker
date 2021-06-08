@@ -18,7 +18,7 @@ const aliases = {
 // eventually there should be command metadata to replace this and the dirty check on if a stock ticker needs to be specified
 const help = `Available commands:
 ${chalk.bold("help")}: show this prompt
-${chalk.bold("quit")}: exit the program
+${chalk.bold("quit")}: exit the program (or just ctrl+c)
 ${chalk.bold("get <ticker>")}: get a current stock price
 ${chalk.bold("add <ticker> <quantity> <price>")}: add shares to your account
 ${chalk.bold("earnings <ticker>")}: get total earnings for stock
@@ -142,6 +142,7 @@ function query(message) {
 }
 
 async function main(){
+  console.log(`${chalk.blueBright("ticker")} - run ${chalk.bold("help")} for a list of commands`)
   while (running) {
     var response = await query("> ");
     response = response.split(" ");
