@@ -1,14 +1,14 @@
 {
   "name": "ticker",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Simple stock tracker.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "the_sink/lucianedean@gmail.com",
+  "license": "MIT",
   "dependencies": {
     "babar": "^0.2.0",
     "chalk": "^4.1.1",
