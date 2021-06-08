@@ -153,7 +153,7 @@ const commands = {
     }
 
     console.log(chalk.red("experimental: this command may not work as expected"));
-    console.log("   " + babar(arr) + `\nprice at days since ${start} and leading up to ${end}:`);
+    console.log(`price at days since ${start} and leading up to ${end}:`);
 
     await yahooFinance.historical({
       symbol: ticker,
@@ -165,6 +165,7 @@ const commands = {
       quotes.forEach(function(data){
         arr.push([quotes.length-arr.length, data.close]); // data needs to be flipped
       });
+      console.log(babar(arr));
     }).catch(function(err){
       console.log(chalk.red("Error: " + err));
     });
