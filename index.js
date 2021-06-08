@@ -59,7 +59,7 @@ const commands = {
     }
 
     var stocks = await data.get(ticker);
-    console.log(`You currently own ${stocks.length} stocks of $${ticker}, purchasing ${quantity} more at ` + chalk.bold(`$${amount}`));
+    console.log(`You currently own ${stocks.length} stock(s) of $${ticker}, purchasing ${quantity} more at ` + chalk.bold(`$${amount}`));
 
     for (var i = 0; i < quantity; i++) {
       stocks.push(amount);
