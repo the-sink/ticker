@@ -15,10 +15,12 @@ const aliases = {
   check: "get",
   price: "get",
   current: "earnings",
-  delete: "clear"
+  delete: "clear",
+  ls: "list",
+  stocks: "all"
 }
 
-// eventually there should be command metadata to replace this and the dirty check on if a stock ticker needs to be specified
+// (eventually there should be command metadata to replace this and the dirty check on if a stock ticker needs to be specified)
 const help = `Available commands:
 ${chalk.bold("help")}: show this prompt
 ${chalk.bold("quit")}: exit the program (or just ctrl+c)
@@ -30,6 +32,8 @@ ${chalk.bold("list <ticker>")}: list array indices for ticker, used for "remove"
 ${chalk.bold("all")}: list all stock tickers currently on account
 ${chalk.bold("clear <ticker>")}: erase all shares of a stock from your account
 ${chalk.bold("trend <ticker> <startDate> <endDate>")}: generate a trend graph for a stock in the given time period, endDate optionally accepts "today"`
+
+// commands
 
 const commands = {
   help: function(){
@@ -44,8 +48,12 @@ const commands = {
       symbol: ticker,
       modules: ["price"]
     }, function(err, quote) {
-      if (err) {return;}
+      if (err) return;
       var end = '';
+      if (quote.price.quoteType != "EQUITY") {
+        console.log(chalk.red(`$${ticker} is not equity, and cannot be listed!`));
+        return;
+      };
       if (quote.price.postMarketPrice != quote.price.regularMarketPrice) {
         end = `, after-market: ${chalk.bold(`$${quote.price.postMarketPrice}`)}`;
       }
@@ -57,35 +65,37 @@ const commands = {
   add: async function(response){
     var ticker = response[1].toUpperCase();
     var quantity = parseInt(response[2] || "1");
-    var amount = response[3];
-    await data.ensure(ticker, []);
+    var price = response[3];
 
-    if (amount == null) {
+    if (quantity < 1){
+      console.log(chalk.red(`Cannot add less than one share of a stock! Quantity must be >= 1.`));
+      return;
+    }
+
+    if (price == null) {
       await yahooFinance.quote({
         symbol: ticker,
         modules: ["price"]
-      }, function(err, quote) {
-        if (err) {return;}
-        amount = quote.price.regularMarketPrice;
+      }, async function(err, quote) {
+        if (err) return;
+        if (quote.price.quoteType != "EQUITY") {
+          console.log(chalk.red(`$${ticker} is not equity, and cannot be listed!`));
+          return;
+        };
+        price = quote.price.regularMarketPrice;
+
+        addShares(ticker, quantity, price);
       }).catch(function(err){
         console.log(chalk.red(err));
       });
+    } else {
+      addShares(ticker, quantity, price);
     }
-
-    if (amount == undefined) {return;}
-
-    var stocks = await data.get(ticker);
-    console.log(`You currently own ${stocks.length} stock(s) of $${ticker}, purchasing ${quantity} more at ` + chalk.bold(`$${amount}`));
-
-    for (var i = 0; i < quantity; i++) {
-      stocks.push(amount);
-    }
-
-    await data.set(ticker, stocks);
   },
   earnings: async function(response){
     var ticker = response[1].toUpperCase();
     var increaseTotal = 0;
+    var found = true;
     if (ticker == "*") {
       var tickers = await data.keyArray();
       console.log("Processing earnings for all stocks...");
@@ -94,9 +104,18 @@ const commands = {
         increaseTotal += earnings;
       }
     } else {
-      await data.ensure(ticker, []);
-      increaseTotal = await getEarnings(ticker);
+      if (data.has(ticker)) {
+        increaseTotal = await getEarnings(ticker);
+      } else {
+        found = false;
+      }
     }
+
+    if (!found) {
+      console.log(chalk.red(`You don't have any shares of $${ticker}!`));
+      return;
+    }
+
     var output;
     if (increaseTotal > 0){
       output = chalk.green.bold(`$${increaseTotal.toFixed(2)}`)
@@ -110,7 +129,10 @@ const commands = {
     var ticker = response[1].toUpperCase();
     var index = parseInt(response[2]);
 
-    await data.ensure(ticker, []);
+    if (!data.has(ticker)) {
+      console.log(chalk.red(`You don't have any shares of $${ticker}!`));
+      return;
+    }
 
     var stocks = await data.get(ticker);
     if (typeof stocks[index] !== "undefined"){
@@ -118,12 +140,16 @@ const commands = {
       await data.set(ticker, stocks);
       console.log(`Removed share #${index}`);
     } else {
-      console.log(chalk.red(`That number doesn't exist! Run "list ${ticker}" for a list of currently owned shares and their index.`));
+      console.log(chalk.red(`That number doesn't exist! Run "list ${ticker}" for a list of currently owned shares and their index. Or maybe you're looking for "clear"?`));
     }
   },
   list: async function(response){
     var ticker = response[1].toUpperCase();
-    await data.ensure(ticker, []);
+    
+    if (!data.has(ticker)) {
+      console.log(chalk.red(`You don't have any shares of $${ticker}!`));
+      return;
+    }
 
     var stocks = await data.get(ticker);
 
@@ -159,10 +185,10 @@ const commands = {
       from: start,
       to: end,
     }, function (err, quotes) {
-      if (err) {return;}
+      if (err) return;
       var arr = [];
       quotes.forEach(function(data){
-        arr.push([quotes.length-arr.length, data.close]); // data needs to be flipped
+        arr.push([quotes.length-arr.length, data.close]);
       });
       console.log(babar(arr));
     }).catch(function(err){
@@ -170,6 +196,8 @@ const commands = {
     });
   }
 }
+
+// common functions and user input
 
 const read = readline.createInterface({
   input: process.stdin,
@@ -182,6 +210,19 @@ function query(message) {
   }));
 }
 
+async function addShares(ticker, quantity, price){
+  await data.ensure(ticker, []);
+
+  var stocks = await data.get(ticker);
+  console.log(`You currently own ${stocks.length} stock(s) of $${ticker}, purchasing ${quantity} more at ` + chalk.bold(`$${price}`));
+
+  for (var i = 0; i < quantity; i++) {
+    stocks.push(price);
+  }
+
+  await data.set(ticker, stocks);
+}
+
 async function getEarnings(ticker) {
   var stocks = await data.get(ticker);
   var current = 0;
@@ -191,7 +232,7 @@ async function getEarnings(ticker) {
     symbol: ticker,
     modules: ["price"]
   }, function(err, quote) {
-    if (err) {return;}
+    if (err) return;
     current = quote.price.regularMarketPrice;
   }).catch(function(err){
     console.log(chalk.red(err));
