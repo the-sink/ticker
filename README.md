@@ -11,4 +11,4 @@ To use, clone the repository and run ``npm install`` in the working directory to
 **This tool does not conduct any real transactions**. It's just for tracking earnings.
 
 ![image](https://user-images.githubusercontent.com/18225391/121231086-d4e46000-c844-11eb-97a7-31db14715cf3.png)
-![image](https://user-images.githubusercontent.com/18225391/121236852-40313080-c84b-11eb-96f0-60dda8c677c7.png)
+![image](https://user-images.githubusercontent.com/18225391/121296052-dc3b5600-c8a4-11eb-8850-90cc9135e400.png)
