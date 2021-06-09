@@ -1,11 +1,17 @@
 // TODO: convert yahoo finance requests to a function
 
+if (process.env.npm_package_version == undefined){
+  console.error(`Please use \"npm start\"!`);
+  process.exit();
+}
+
 const yahooFinance = require("yahoo-finance");
 const readline = require("readline");
 const Enmap = require("enmap");
 const chalk = require("chalk");
 const babar = require("babar");
-const data = new Enmap({name: "data"});
+const profile = process.argv[2] || "generic";
+const data = new Enmap({name: profile});
 
 var running = true;
 
@@ -245,7 +251,7 @@ async function getEarnings(ticker) {
 }
 
 async function main(){
-  console.log(`${chalk.blueBright("ticker")} ${process.env.npm_package_version} - run ${chalk.bold("help")} for a list of commands`)
+  console.log(`${chalk.blueBright("ticker")} ${process.env.npm_package_version} - using profile "${profile}" - run ${chalk.bold("help")} for a list of commands`)
   while (running) {
     var response = await query("> ");
     response = response.split(" ");
