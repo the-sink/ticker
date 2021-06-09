@@ -29,7 +29,7 @@ ${chalk.bold("remove <ticker> <index>")}: remove index from share list, use "lis
 ${chalk.bold("list <ticker>")}: list array indices for ticker, used for "remove" command
 ${chalk.bold("all")}: list all stock tickers currently on account
 ${chalk.bold("clear <ticker>")}: erase all shares of a stock from your account
-${chalk.bold("trend <ticker> <startDate> <endDate>")}: generate a trend graph for a stock in the given time period`
+${chalk.bold("trend <ticker> <startDate> <endDate>")}: generate a trend graph for a stock in the given time period, endDate optionally accepts "today"`
 
 const commands = {
   help: function(){
@@ -45,7 +45,11 @@ const commands = {
       modules: ["price"]
     }, function(err, quote) {
       if (err) {return;}
-      console.log(`Current stock price of $${ticker}: ` + chalk.bold(`$${quote.price.regularMarketPrice}`));
+      var end = '';
+      if (quote.price.postMarketPrice != quote.price.regularMarketPrice) {
+        end = `, after-market: ${chalk.bold(`$${quote.price.postMarketPrice}`)}`;
+      }
+      console.log(`Current stock price of $${ticker}: ${chalk.bold(`$${quote.price.regularMarketPrice}`)}` + end);
     }).catch(function(err){
       console.log(chalk.red("Error: " + err));
     });
@@ -84,7 +88,7 @@ const commands = {
     var increaseTotal = 0;
     if (ticker == "*") {
       var tickers = await data.keyArray();
-      console.log("Processing earnings...");
+      console.log("Processing earnings for all stocks...");
       for (const subject of tickers){
         var earnings = await getEarnings(subject);
         increaseTotal += earnings;
@@ -140,6 +144,7 @@ const commands = {
     var ticker = response[1].toUpperCase();
     var start = response[2];
     var end = response[3];
+    if (end == "today"){end = new Date().toJSON().slice(0,10)};
 
     if (start == undefined || end == undefined) {
       console.log(chalk.red("Please provide a start and end date!"));
