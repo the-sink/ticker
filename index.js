@@ -51,7 +51,7 @@ const commands = {
       }
       console.log(`Current stock price of $${ticker}: ${chalk.bold(`$${quote.price.regularMarketPrice}`)}` + end);
     }).catch(function(err){
-      console.log(chalk.red("Error: " + err));
+      console.log(chalk.red(err));
     });
   },
   add: async function(response){
@@ -68,7 +68,7 @@ const commands = {
         if (err) {return;}
         amount = quote.price.regularMarketPrice;
       }).catch(function(err){
-        console.log(chalk.red("Error: " + err));
+        console.log(chalk.red(err));
       });
     }
 
@@ -166,7 +166,7 @@ const commands = {
       });
       console.log(babar(arr));
     }).catch(function(err){
-      console.log(chalk.red("Error: " + err));
+      console.log(chalk.red(err));
     });
   }
 }
@@ -194,7 +194,7 @@ async function getEarnings(ticker) {
     if (err) {return;}
     current = quote.price.regularMarketPrice;
   }).catch(function(err){
-    console.log(chalk.red("Error: " + err));
+    console.log(chalk.red(err));
   });
 
   await stocks.forEach(function(value){
